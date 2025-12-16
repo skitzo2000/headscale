@@ -4,7 +4,7 @@
 FROM debian:trixie-slim
 
 RUN apt-get --update install --no-install-recommends --yes \
-    less jq sqlite3 dnsutils ca-certificates procps bash findutils curl traceroute \
+    less jq sqlite3 dnsutils ca-certificates procps bash findutils curl traceroute iproute2 python3 \
   && apt-get dist-clean
 
 RUN mkdir -p /var/run/headscale

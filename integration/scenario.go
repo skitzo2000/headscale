@@ -14,6 +14,7 @@ import (
 	"net/netip"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,7 +64,7 @@ var (
 	//
 	// The rest of the version represents Tailscale versions that can be
 	// found in Tailscale's apt repository.
-	AllVersions = append([]string{"head", "unstable"}, capver.TailscaleLatestMajorMinor(10, true)...)
+	AllVersions = append([]string{"head", "unstable"}, capver.TailscaleLatestMajorMinor(capver.SupportedMajorMinorVersions, true)...)
 
 	// MustTestVersions is the minimum set of versions we should test.
 	// At the moment, this is arbitrarily chosen as:
@@ -472,6 +473,27 @@ func (s *Scenario) CreatePreAuthKey(
 	return nil, fmt.Errorf("failed to create user: %w", errNoHeadscaleAvailable)
 }
 
+// CreatePreAuthKeyWithTags creates a "pre authorised key" with the specified tags
+// to be created in the Headscale instance on behalf of the Scenario.
+func (s *Scenario) CreatePreAuthKeyWithTags(
+	user uint64,
+	reusable bool,
+	ephemeral bool,
+	tags []string,
+) (*v1.PreAuthKey, error) {
+	headscale, err := s.Headscale()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create preauth key with tags: %w", errNoHeadscaleAvailable)
+	}
+
+	key, err := headscale.CreateAuthKeyWithTags(user, reusable, ephemeral, tags)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create preauth key with tags: %w", err)
+	}
+
+	return key, nil
+}
+
 // CreateUser creates a User to be created in the
 // Headscale instance on behalf of the Scenario.
 func (s *Scenario) CreateUser(user string) (*v1.User, error) {
@@ -767,6 +789,19 @@ func (s *Scenario) createHeadscaleEnv(
 	tsOpts []tsic.Option,
 	opts ...hsic.Option,
 ) error {
+	return s.createHeadscaleEnvWithTags(withURL, tsOpts, nil, opts...)
+}
+
+// createHeadscaleEnvWithTags starts the headscale environment and the clients
+// according to the ScenarioSpec passed to the Scenario. If preAuthKeyTags is
+// non-empty and withURL is false, the tags will be applied to the PreAuthKey
+// (tags-as-identity model).
+func (s *Scenario) createHeadscaleEnvWithTags(
+	withURL bool,
+	tsOpts []tsic.Option,
+	preAuthKeyTags []string,
+	opts ...hsic.Option,
+) error {
 	headscale, err := s.Headscale(opts...)
 	if err != nil {
 		return err
@@ -796,7 +831,13 @@ func (s *Scenario) createHeadscaleEnv(
 				return err
 			}
 		} else {
-			key, err := s.CreatePreAuthKey(u.GetId(), true, false)
+			// Use tagged PreAuthKey if tags are provided (tags-as-identity model)
+			var key *v1.PreAuthKey
+			if len(preAuthKeyTags) > 0 {
+				key, err = s.CreatePreAuthKeyWithTags(u.GetId(), true, false, preAuthKeyTags)
+			} else {
+				key, err = s.CreatePreAuthKey(u.GetId(), true, false)
+			}
 			if err != nil {
 				return err
 			}
@@ -1159,10 +1200,8 @@ func (s *Scenario) FindTailscaleClientByIP(ip netip.Addr) (TailscaleClient, erro
 
 	for _, client := range clients {
 		ips, _ := client.IPs()
-		for _, ip2 := range ips {
-			if ip == ip2 {
-				return client, nil
-			}
+		if slices.Contains(ips, ip) {
+			return client, nil
 		}
 	}
 

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	_ "net/http/pprof" // nolint
@@ -286,7 +287,7 @@ func (h *Headscale) scheduledTasks(ctx context.Context) {
 			return
 
 		case <-expireTicker.C:
-			var expiredNodeChanges []change.ChangeSet
+			var expiredNodeChanges []change.Change
 			var changed bool
 
 			lastExpiryCheck, expiredNodeChanges, changed = h.state.ExpireExpiredNodes(lastExpiryCheck)
@@ -320,7 +321,7 @@ func (h *Headscale) scheduledTasks(ctx context.Context) {
 			}
 			h.state.SetDERPMap(derpMap)
 
-			h.Change(change.DERPSet)
+			h.Change(change.DERPMap())
 
 		case records, ok := <-extraRecordsUpdate:
 			if !ok {
@@ -328,7 +329,7 @@ func (h *Headscale) scheduledTasks(ctx context.Context) {
 			}
 			h.cfg.TailcfgDNSConfig.ExtraRecords = records
 
-			h.Change(change.ExtraRecordsSet)
+			h.Change(change.ExtraRecords())
 		}
 	}
 }
@@ -492,8 +493,8 @@ func (h *Headscale) createRouter(grpcMux *grpcRuntime.ServeMux) *mux.Router {
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.httpAuthenticationMiddleware)
 	apiRouter.PathPrefix("/v1/").HandlerFunc(grpcMux.ServeHTTP)
-
-	router.PathPrefix("/").HandlerFunc(notFoundHandler)
+	router.HandleFunc("/favicon.ico", FaviconHandler)
+	router.PathPrefix("/").HandlerFunc(BlankHandler)
 
 	return router
 }
@@ -893,6 +894,11 @@ func (h *Headscale) getTLSSettings() (*tls.Config, error) {
 			Cache:      autocert.DirCache(h.cfg.TLS.LetsEncrypt.CacheDir),
 			Client: &acme.Client{
 				DirectoryURL: h.cfg.ACMEURL,
+				HTTPClient: &http.Client{
+					Transport: &acmeLogger{
+						rt: http.DefaultTransport,
+					},
+				},
 			},
 			Email: h.cfg.ACMEEmail,
 		}
@@ -951,18 +957,6 @@ func (h *Headscale) getTLSSettings() (*tls.Config, error) {
 	}
 }
 
-func notFoundHandler(
-	writer http.ResponseWriter,
-	req *http.Request,
-) {
-	log.Trace().
-		Interface("header", req.Header).
-		Interface("proto", req.Proto).
-		Interface("url", req.URL).
-		Msg("Request did not match")
-	writer.WriteHeader(http.StatusNotFound)
-}
-
 func readOrCreatePrivateKey(path string) (*key.MachinePrivate, error) {
 	dir := filepath.Dir(path)
 	err := util.EnsureDir(dir)
@@ -1010,6 +1004,31 @@ func readOrCreatePrivateKey(path string) (*key.MachinePrivate, error) {
 // Change is used to send changes to nodes.
 // All change should be enqueued here and empty will be automatically
 // ignored.
-func (h *Headscale) Change(cs ...change.ChangeSet) {
+func (h *Headscale) Change(cs ...change.Change) {
 	h.mapBatcher.AddWork(cs...)
+}
+
+// Provide some middleware that can inspect the ACME/autocert https calls
+// and log when things are failing.
+type acmeLogger struct {
+	rt http.RoundTripper
+}
+
+// RoundTrip will log when ACME/autocert failures happen either when err != nil OR
+// when http status codes indicate a failure has occurred.
+func (l *acmeLogger) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := l.rt.RoundTrip(req)
+	if err != nil {
+		log.Error().Err(err).Str("url", req.URL.String()).Msg("ACME request failed")
+		return nil, err
+	}
+
+	if resp.StatusCode >= http.StatusBadRequest {
+		defer resp.Body.Close()
+
+		body, _ := io.ReadAll(resp.Body)
+		log.Error().Int("status_code", resp.StatusCode).Str("url", req.URL.String()).Bytes("body", body).Msg("ACME request returned error")
+	}
+
+	return resp, nil
 }

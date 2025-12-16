@@ -74,26 +74,6 @@ func init() {
 	}
 	nodeCmd.AddCommand(deleteNodeCmd)
 
-	moveNodeCmd.Flags().Uint64P("identifier", "i", 0, "Node identifier (ID)")
-
-	err = moveNodeCmd.MarkFlagRequired("identifier")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	moveNodeCmd.Flags().Uint64P("user", "u", 0, "New user")
-
-	moveNodeCmd.Flags().StringP("namespace", "n", "", "User")
-	moveNodeNamespaceFlag := moveNodeCmd.Flags().Lookup("namespace")
-	moveNodeNamespaceFlag.Deprecated = deprecateNamespaceMessage
-	moveNodeNamespaceFlag.Hidden = true
-
-	err = moveNodeCmd.MarkFlagRequired("user")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	nodeCmd.AddCommand(moveNodeCmd)
-
 	tagCmd.Flags().Uint64P("identifier", "i", 0, "Node identifier (ID)")
 	tagCmd.MarkFlagRequired("identifier")
 	tagCmd.Flags().StringSliceP("tags", "t", []string{}, "List of tags to add to the node")
@@ -254,10 +234,6 @@ var listNodeRoutesCmd = &cobra.Command{
 			)
 		}
 
-		if output != "" {
-			SuccessOutput(response.GetNodes(), "", output)
-		}
-
 		nodes := response.GetNodes()
 		if identifier != 0 {
 			for _, node := range response.GetNodes() {
@@ -271,6 +247,11 @@ var listNodeRoutesCmd = &cobra.Command{
 		nodes = lo.Filter(nodes, func(n *v1.Node, _ int) bool {
 			return (n.GetSubnetRoutes() != nil && len(n.GetSubnetRoutes()) > 0) || (n.GetApprovedRoutes() != nil && len(n.GetApprovedRoutes()) > 0) || (n.GetAvailableRoutes() != nil && len(n.GetAvailableRoutes()) > 0)
 		})
+
+		if output != "" {
+			SuccessOutput(nodes, "", output)
+			return
+		}
 
 		tableData, err := nodeRoutesToPtables(nodes)
 		if err != nil {
@@ -466,66 +447,6 @@ var deleteNodeCmd = &cobra.Command{
 		} else {
 			SuccessOutput(map[string]string{"Result": "Node not deleted"}, "Node not deleted", output)
 		}
-	},
-}
-
-var moveNodeCmd = &cobra.Command{
-	Use:     "move",
-	Short:   "Move node to another user",
-	Aliases: []string{"mv"},
-	Run: func(cmd *cobra.Command, args []string) {
-		output, _ := cmd.Flags().GetString("output")
-
-		identifier, err := cmd.Flags().GetUint64("identifier")
-		if err != nil {
-			ErrorOutput(
-				err,
-				fmt.Sprintf("Error converting ID to integer: %s", err),
-				output,
-			)
-		}
-
-		user, err := cmd.Flags().GetUint64("user")
-		if err != nil {
-			ErrorOutput(
-				err,
-				fmt.Sprintf("Error getting user: %s", err),
-				output,
-			)
-		}
-
-		ctx, client, conn, cancel := newHeadscaleCLIWithConfig()
-		defer cancel()
-		defer conn.Close()
-
-		getRequest := &v1.GetNodeRequest{
-			NodeId: identifier,
-		}
-
-		_, err = client.GetNode(ctx, getRequest)
-		if err != nil {
-			ErrorOutput(
-				err,
-				"Error getting node: "+status.Convert(err).Message(),
-				output,
-			)
-		}
-
-		moveRequest := &v1.MoveNodeRequest{
-			NodeId: identifier,
-			User:   user,
-		}
-
-		moveResponse, err := client.MoveNode(ctx, moveRequest)
-		if err != nil {
-			ErrorOutput(
-				err,
-				"Error moving node: "+status.Convert(err).Message(),
-				output,
-			)
-		}
-
-		SuccessOutput(moveResponse.GetNode(), "Node moved to another user", output)
 	},
 }
 
@@ -774,23 +695,26 @@ func nodesToPtables(
 
 		var forcedTags string
 		for _, tag := range node.GetForcedTags() {
-			forcedTags += "," + tag
+			forcedTags += "\n" + tag
 		}
-		forcedTags = strings.TrimLeft(forcedTags, ",")
+
+		forcedTags = strings.TrimLeft(forcedTags, "\n")
 		var invalidTags string
 		for _, tag := range node.GetInvalidTags() {
 			if !slices.Contains(node.GetForcedTags(), tag) {
-				invalidTags += "," + pterm.LightRed(tag)
+				invalidTags += "\n" + pterm.LightRed(tag)
 			}
 		}
-		invalidTags = strings.TrimLeft(invalidTags, ",")
+
+		invalidTags = strings.TrimLeft(invalidTags, "\n")
 		var validTags string
 		for _, tag := range node.GetValidTags() {
 			if !slices.Contains(node.GetForcedTags(), tag) {
-				validTags += "," + pterm.LightGreen(tag)
+				validTags += "\n" + pterm.LightGreen(tag)
 			}
 		}
-		validTags = strings.TrimLeft(validTags, ",")
+
+		validTags = strings.TrimLeft(validTags, "\n")
 
 		var user string
 		if currentUser == "" || (currentUser == node.GetUser().GetName()) {
@@ -852,9 +776,9 @@ func nodeRoutesToPtables(
 		nodeData := []string{
 			strconv.FormatUint(node.GetId(), util.Base10),
 			node.GetGivenName(),
-			strings.Join(node.GetApprovedRoutes(), ", "),
-			strings.Join(node.GetAvailableRoutes(), ", "),
-			strings.Join(node.GetSubnetRoutes(), ", "),
+			strings.Join(node.GetApprovedRoutes(), "\n"),
+			strings.Join(node.GetAvailableRoutes(), "\n"),
+			strings.Join(node.GetSubnetRoutes(), "\n"),
 		}
 		tableData = append(
 			tableData,
