@@ -100,6 +100,13 @@ message ListNodesRequest { string user = 1; }
 
 message ListNodesResponse { repeated Node nodes = 1; }
 
+message MoveNodeRequest {
+  uint64 node_id = 1;
+  uint64 user = 2;
+}
+
+message MoveNodeResponse { Node node = 1; }
+
 message DebugCreateNodeRequest {
   string user = 1;
   string key = 2;
@@ -112,11 +119,3 @@ message DebugCreateNodeResponse { Node node = 1; }
 message BackfillNodeIPsRequest { bool confirmed = 1; }
 
 message BackfillNodeIPsResponse { repeated string changes = 1; }
-
-message SetNodeIPRequest {
-  uint64 node_id = 1;
-  string ipv4 = 2;  // IPv4 address (required)
-  string ipv6 = 3;  // IPv6 address (optional, will be auto-generated if not provided)
-}
-
-message SetNodeIPResponse { Node node = 1; }
