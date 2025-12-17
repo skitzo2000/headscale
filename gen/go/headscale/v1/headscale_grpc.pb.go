@@ -25,6 +25,7 @@ const (
 	HeadscaleService_ListUsers_FullMethodName         = "/headscale.v1.HeadscaleService/ListUsers"
 	HeadscaleService_CreatePreAuthKey_FullMethodName  = "/headscale.v1.HeadscaleService/CreatePreAuthKey"
 	HeadscaleService_ExpirePreAuthKey_FullMethodName  = "/headscale.v1.HeadscaleService/ExpirePreAuthKey"
+	HeadscaleService_DeletePreAuthKey_FullMethodName  = "/headscale.v1.HeadscaleService/DeletePreAuthKey"
 	HeadscaleService_ListPreAuthKeys_FullMethodName   = "/headscale.v1.HeadscaleService/ListPreAuthKeys"
 	HeadscaleService_DebugCreateNode_FullMethodName   = "/headscale.v1.HeadscaleService/DebugCreateNode"
 	HeadscaleService_GetNode_FullMethodName           = "/headscale.v1.HeadscaleService/GetNode"
@@ -37,6 +38,7 @@ const (
 	HeadscaleService_ListNodes_FullMethodName         = "/headscale.v1.HeadscaleService/ListNodes"
 	HeadscaleService_MoveNode_FullMethodName          = "/headscale.v1.HeadscaleService/MoveNode"
 	HeadscaleService_BackfillNodeIPs_FullMethodName   = "/headscale.v1.HeadscaleService/BackfillNodeIPs"
+	HeadscaleService_SetNodeIP_FullMethodName         = "/headscale.v1.HeadscaleService/SetNodeIP"
 	HeadscaleService_CreateApiKey_FullMethodName      = "/headscale.v1.HeadscaleService/CreateApiKey"
 	HeadscaleService_ExpireApiKey_FullMethodName      = "/headscale.v1.HeadscaleService/ExpireApiKey"
 	HeadscaleService_ListApiKeys_FullMethodName       = "/headscale.v1.HeadscaleService/ListApiKeys"
@@ -58,6 +60,7 @@ type HeadscaleServiceClient interface {
 	// --- PreAuthKeys start ---
 	CreatePreAuthKey(ctx context.Context, in *CreatePreAuthKeyRequest, opts ...grpc.CallOption) (*CreatePreAuthKeyResponse, error)
 	ExpirePreAuthKey(ctx context.Context, in *ExpirePreAuthKeyRequest, opts ...grpc.CallOption) (*ExpirePreAuthKeyResponse, error)
+	DeletePreAuthKey(ctx context.Context, in *DeletePreAuthKeyRequest, opts ...grpc.CallOption) (*DeletePreAuthKeyResponse, error)
 	ListPreAuthKeys(ctx context.Context, in *ListPreAuthKeysRequest, opts ...grpc.CallOption) (*ListPreAuthKeysResponse, error)
 	// --- Node start ---
 	DebugCreateNode(ctx context.Context, in *DebugCreateNodeRequest, opts ...grpc.CallOption) (*DebugCreateNodeResponse, error)
@@ -71,6 +74,7 @@ type HeadscaleServiceClient interface {
 	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
 	MoveNode(ctx context.Context, in *MoveNodeRequest, opts ...grpc.CallOption) (*MoveNodeResponse, error)
 	BackfillNodeIPs(ctx context.Context, in *BackfillNodeIPsRequest, opts ...grpc.CallOption) (*BackfillNodeIPsResponse, error)
+	SetNodeIP(ctx context.Context, in *SetNodeIPRequest, opts ...grpc.CallOption) (*SetNodeIPResponse, error)
 	// --- ApiKeys start ---
 	CreateApiKey(ctx context.Context, in *CreateApiKeyRequest, opts ...grpc.CallOption) (*CreateApiKeyResponse, error)
 	ExpireApiKey(ctx context.Context, in *ExpireApiKeyRequest, opts ...grpc.CallOption) (*ExpireApiKeyResponse, error)
@@ -145,6 +149,16 @@ func (c *headscaleServiceClient) ExpirePreAuthKey(ctx context.Context, in *Expir
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ExpirePreAuthKeyResponse)
 	err := c.cc.Invoke(ctx, HeadscaleService_ExpirePreAuthKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) DeletePreAuthKey(ctx context.Context, in *DeletePreAuthKeyRequest, opts ...grpc.CallOption) (*DeletePreAuthKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeletePreAuthKeyResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_DeletePreAuthKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -271,6 +285,16 @@ func (c *headscaleServiceClient) BackfillNodeIPs(ctx context.Context, in *Backfi
 	return out, nil
 }
 
+func (c *headscaleServiceClient) SetNodeIP(ctx context.Context, in *SetNodeIPRequest, opts ...grpc.CallOption) (*SetNodeIPResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetNodeIPResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_SetNodeIP_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *headscaleServiceClient) CreateApiKey(ctx context.Context, in *CreateApiKeyRequest, opts ...grpc.CallOption) (*CreateApiKeyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateApiKeyResponse)
@@ -353,6 +377,7 @@ type HeadscaleServiceServer interface {
 	// --- PreAuthKeys start ---
 	CreatePreAuthKey(context.Context, *CreatePreAuthKeyRequest) (*CreatePreAuthKeyResponse, error)
 	ExpirePreAuthKey(context.Context, *ExpirePreAuthKeyRequest) (*ExpirePreAuthKeyResponse, error)
+	DeletePreAuthKey(context.Context, *DeletePreAuthKeyRequest) (*DeletePreAuthKeyResponse, error)
 	ListPreAuthKeys(context.Context, *ListPreAuthKeysRequest) (*ListPreAuthKeysResponse, error)
 	// --- Node start ---
 	DebugCreateNode(context.Context, *DebugCreateNodeRequest) (*DebugCreateNodeResponse, error)
@@ -366,6 +391,7 @@ type HeadscaleServiceServer interface {
 	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
 	MoveNode(context.Context, *MoveNodeRequest) (*MoveNodeResponse, error)
 	BackfillNodeIPs(context.Context, *BackfillNodeIPsRequest) (*BackfillNodeIPsResponse, error)
+	SetNodeIP(context.Context, *SetNodeIPRequest) (*SetNodeIPResponse, error)
 	// --- ApiKeys start ---
 	CreateApiKey(context.Context, *CreateApiKeyRequest) (*CreateApiKeyResponse, error)
 	ExpireApiKey(context.Context, *ExpireApiKeyRequest) (*ExpireApiKeyResponse, error)
@@ -404,6 +430,9 @@ func (UnimplementedHeadscaleServiceServer) CreatePreAuthKey(context.Context, *Cr
 func (UnimplementedHeadscaleServiceServer) ExpirePreAuthKey(context.Context, *ExpirePreAuthKeyRequest) (*ExpirePreAuthKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExpirePreAuthKey not implemented")
 }
+func (UnimplementedHeadscaleServiceServer) DeletePreAuthKey(context.Context, *DeletePreAuthKeyRequest) (*DeletePreAuthKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePreAuthKey not implemented")
+}
 func (UnimplementedHeadscaleServiceServer) ListPreAuthKeys(context.Context, *ListPreAuthKeysRequest) (*ListPreAuthKeysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPreAuthKeys not implemented")
 }
@@ -439,6 +468,9 @@ func (UnimplementedHeadscaleServiceServer) MoveNode(context.Context, *MoveNodeRe
 }
 func (UnimplementedHeadscaleServiceServer) BackfillNodeIPs(context.Context, *BackfillNodeIPsRequest) (*BackfillNodeIPsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BackfillNodeIPs not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) SetNodeIP(context.Context, *SetNodeIPRequest) (*SetNodeIPResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetNodeIP not implemented")
 }
 func (UnimplementedHeadscaleServiceServer) CreateApiKey(context.Context, *CreateApiKeyRequest) (*CreateApiKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateApiKey not implemented")
@@ -586,6 +618,24 @@ func _HeadscaleService_ExpirePreAuthKey_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HeadscaleServiceServer).ExpirePreAuthKey(ctx, req.(*ExpirePreAuthKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_DeletePreAuthKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePreAuthKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).DeletePreAuthKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_DeletePreAuthKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).DeletePreAuthKey(ctx, req.(*DeletePreAuthKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -806,6 +856,24 @@ func _HeadscaleService_BackfillNodeIPs_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HeadscaleService_SetNodeIP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetNodeIPRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).SetNodeIP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_SetNodeIP_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).SetNodeIP(ctx, req.(*SetNodeIPRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _HeadscaleService_CreateApiKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateApiKeyRequest)
 	if err := dec(in); err != nil {
@@ -964,6 +1032,10 @@ var HeadscaleService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HeadscaleService_ExpirePreAuthKey_Handler,
 		},
 		{
+			MethodName: "DeletePreAuthKey",
+			Handler:    _HeadscaleService_DeletePreAuthKey_Handler,
+		},
+		{
 			MethodName: "ListPreAuthKeys",
 			Handler:    _HeadscaleService_ListPreAuthKeys_Handler,
 		},
@@ -1010,6 +1082,10 @@ var HeadscaleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BackfillNodeIPs",
 			Handler:    _HeadscaleService_BackfillNodeIPs_Handler,
+		},
+		{
+			MethodName: "SetNodeIP",
+			Handler:    _HeadscaleService_SetNodeIP_Handler,
 		},
 		{
 			MethodName: "CreateApiKey",

@@ -755,11 +755,11 @@ func (s *State) SetApprovedRoutes(nodeID types.NodeID, routes []netip.Prefix) (t
 
 // SetNodeIPs sets the IPv4 and IPv6 addresses for a node.
 // It validates that the IPs are in the configured ranges and checks for conflicts.
-func (s *State) SetNodeIPs(nodeID types.NodeID, ipv4 *netip.Addr, ipv6 *netip.Addr) (types.NodeView, change.ChangeSet, error) {
+func (s *State) SetNodeIPs(nodeID types.NodeID, ipv4 *netip.Addr, ipv6 *netip.Addr) (types.NodeView, change.Change, error) {
 	// First validate and update in database (this includes conflict checking)
 	err := s.db.SetNodeIPs(nodeID, ipv4, ipv6, s.cfg.PrefixV4, s.cfg.PrefixV6)
 	if err != nil {
-		return types.NodeView{}, change.EmptySet, fmt.Errorf("setting node IPs: %w", err)
+		return types.NodeView{}, change.Change{}, fmt.Errorf("setting node IPs: %w", err)
 	}
 
 	// Update NodeStore to reflect the changes
@@ -773,7 +773,7 @@ func (s *State) SetNodeIPs(nodeID types.NodeID, ipv4 *netip.Addr, ipv6 *netip.Ad
 	})
 
 	if !ok {
-		return types.NodeView{}, change.EmptySet, fmt.Errorf("node not found in NodeStore: %d", nodeID)
+		return types.NodeView{}, change.Change{}, fmt.Errorf("node not found in NodeStore: %d", nodeID)
 	}
 
 	// n is already a NodeView from UpdateNode

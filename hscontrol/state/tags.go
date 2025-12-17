@@ -28,7 +28,7 @@ func validateNodeOwnership(node *types.Node) error {
 
 	// Tagged nodes: Must have tags, UserID is optional (just "created by")
 	if isTagged {
-		if len(node.Tags()) == 0 {
+		if len(node.Tags) == 0 {
 			return fmt.Errorf("%w: %q", ErrNodeMarkedTaggedButHasNoTags, node.Hostname)
 		}
 		// UserID can be set (created by) or 0 (orphaned), both valid for tagged nodes
@@ -36,7 +36,7 @@ func validateNodeOwnership(node *types.Node) error {
 	}
 
 	// User-owned nodes: Must have UserID, must NOT have tags
-	if node.UserID == 0 {
+	if *node.UserID == 0 {
 		return fmt.Errorf("%w: %q", ErrNodeHasNeitherUserNorTags, node.Hostname)
 	}
 
@@ -49,7 +49,7 @@ func logTagOperation(existingNode types.NodeView, newTags []string) {
 		log.Info().
 			Uint64("node.id", existingNode.ID().Uint64()).
 			Str("node.name", existingNode.Hostname()).
-			Strs("old.tags", existingNode.Tags()).
+			Strs("old.tags", existingNode.Tags().AsSlice()).
 			Strs("new.tags", newTags).
 			Msg("Updating tags on already-tagged node")
 	} else {
@@ -58,7 +58,7 @@ func logTagOperation(existingNode types.NodeView, newTags []string) {
 		log.Info().
 			Uint64("node.id", existingNode.ID().Uint64()).
 			Str("node.name", existingNode.Hostname()).
-			Uint("created.by.user", userID).
+			Uint("created.by.user", userID.Get()).
 			Strs("new.tags", newTags).
 			Msg("Converting user-owned node to tagged node (irreversible)")
 	}
