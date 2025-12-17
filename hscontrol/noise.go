@@ -9,9 +9,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/juanfont/headscale/hscontrol/capver"
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/rs/zerolog/log"
+	"github.com/skitzo20000000/headscale/hscontrol/types"
+	"github.com/skitzo2000000000/headscale/hscontrol/capver"
+	"github.com/skitzo2000og/log"
 	"golang.org/x/net/http2"
 	"tailscale.com/control/controlbase"
 	"tailscale.com/control/controlhttp/controlhttpserver"

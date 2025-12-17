@@ -3,9 +3,9 @@ package cli
 import (
 	"fmt"
 
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	"github.com/juanfont/headscale/hscontrol/types"
 	"github.com/rs/zerolog/log"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	"github.com/skitzo2000/headscale/hscontrol/types"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/status"
 )

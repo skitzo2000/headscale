@@ -7,12 +7,13 @@
 package v1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -454,7 +455,7 @@ const file_headscale_v1_apikey_proto_rawDesc = "" +
 	"\bapi_keys\x18\x01 \x03(\v2\x14.headscale.v1.ApiKeyR\aapiKeys\"-\n" +
 	"\x13DeleteApiKeyRequest\x12\x16\n" +
 	"\x06prefix\x18\x01 \x01(\tR\x06prefix\"\x16\n" +
-	"\x14DeleteApiKeyResponseB)Z'github.com/juanfont/headscale/gen/go/v1b\x06proto3"
+	"\x14DeleteApiKeyResponseB)Z'github.com/skitzo2000/headscale/gen/go/v1b\x06proto3"
 
 var (
 	file_headscale_v1_apikey_proto_rawDescOnce sync.Once

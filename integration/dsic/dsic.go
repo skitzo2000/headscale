@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/juanfont/headscale/hscontrol/util"
-	"github.com/juanfont/headscale/integration/dockertestutil"
-	"github.com/juanfont/headscale/integration/integrationutil"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
+	"github.com/skitzo2000/headscale/hscontrol/util"
+	"github.com/skitzo2000/headscale/integration/dockertestutil"
+	"github.com/skitzo2000/headscale/integration/integrationutil"
 )
 
 const (

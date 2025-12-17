@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	"github.com/juanfont/headscale/hscontrol/policy/matcher"
-	"github.com/juanfont/headscale/hscontrol/util"
 	"github.com/rs/zerolog/log"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	"github.com/skitzo2000/headscale/hscontrol/policy/matcher"
+	"github.com/skitzo2000/headscale/hscontrol/util"
 	"go4.org/netipx"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"tailscale.com/net/tsaddr"

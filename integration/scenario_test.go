@@ -3,8 +3,8 @@ package integration
 import (
 	"testing"
 
-	"github.com/juanfont/headscale/integration/dockertestutil"
-	"github.com/juanfont/headscale/integration/tsic"
+	"github.com/skitzo2000/headscale/integration/dockertestutil"
+	"github.com/skitzo2000/headscale/integration/tsic"
 	"github.com/stretchr/testify/require"
 )
 

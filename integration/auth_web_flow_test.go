@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/integration/hsic"
-	"github.com/juanfont/headscale/integration/integrationutil"
 	"github.com/samber/lo"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/integration/hsic"
+	"github.com/skitzo2000/headscale/integration/integrationutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

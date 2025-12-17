@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	policyv2 "github.com/juanfont/headscale/hscontrol/policy/v2"
-	"github.com/juanfont/headscale/integration/hsic"
-	"github.com/juanfont/headscale/integration/tsic"
+	policyv2 "github.com/skitzo2000/headscale/hscontrol/policy/v2"
+	"github.com/skitzo2000/headscale/integration/hsic"
+	"github.com/skitzo2000/headscale/integration/tsic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"tailscale.com/tailcfg"

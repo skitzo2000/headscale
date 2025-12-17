@@ -8,9 +8,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/hscontrol/util"
 	"github.com/rs/zerolog/log"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/util"
 	xmaps "golang.org/x/exp/maps"
 	"tailscale.com/net/tsaddr"
 	"tailscale.com/util/set"

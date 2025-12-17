@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/jagottsicher/termcolor"
-	"github.com/juanfont/headscale/cmd/headscale/cli"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/skitzo2000/headscale/cmd/headscale/cli"
 )
 
 func main() {

@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/juanfont/headscale/hscontrol/util"
 	"github.com/prometheus/common/model"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/skitzo2000/headscale/hscontrol/util"
 	"github.com/spf13/viper"
 	"go4.org/netipx"
 	"tailscale.com/net/tsaddr"

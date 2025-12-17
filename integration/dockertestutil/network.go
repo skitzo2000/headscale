@@ -6,9 +6,9 @@ import (
 	"log"
 	"net"
 
-	"github.com/juanfont/headscale/hscontrol/util"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
+	"github.com/skitzo2000/headscale/hscontrol/util"
 )
 
 var ErrContainerNotFound = errors.New("container not found")

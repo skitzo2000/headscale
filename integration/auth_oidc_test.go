@@ -11,13 +11,13 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	policyv2 "github.com/juanfont/headscale/hscontrol/policy/v2"
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/integration/hsic"
-	"github.com/juanfont/headscale/integration/tsic"
 	"github.com/oauth2-proxy/mockoidc"
 	"github.com/samber/lo"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	policyv2 "github.com/skitzo2000/headscale/hscontrol/policy/v2"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/integration/hsic"
+	"github.com/skitzo2000/headscale/integration/tsic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"tailscale.com/ipn/ipnstate"
@@ -1302,7 +1302,7 @@ func TestOIDCReloginSameNodeSameUser(t *testing.T) {
 // TestOIDCExpiryAfterRestart validates that node expiry is preserved
 // when a tailscaled client restarts and reconnects to headscale.
 //
-// This test reproduces the bug reported in https://github.com/juanfont/headscale/issues/2862
+// This test reproduces the bug reported in https://github.com/skitzo2000/headscale/issues/2862
 // where OIDC expiry was reset to 0001-01-01 00:00:00 after tailscaled restart.
 //
 // Test flow:
@@ -1431,7 +1431,7 @@ func TestOIDCExpiryAfterRestart(t *testing.T) {
 // to newly joined OIDC nodes without requiring a client restart.
 //
 // This test validates the fix for issue #2888:
-// https://github.com/juanfont/headscale/issues/2888
+// https://github.com/skitzo2000/headscale/issues/2888
 //
 // Bug: Nodes joining via OIDC authentication did not get the appropriate ACL
 // policy applied until they restarted their client. This was a regression
@@ -1728,7 +1728,7 @@ func TestOIDCACLPolicyOnJoin(t *testing.T) {
 // - Routes should STILL be SERVING (not just approved/available)
 //
 // This test validates the fix for issue #2896:
-// https://github.com/juanfont/headscale/issues/2896
+// https://github.com/skitzo2000/headscale/issues/2896
 //
 // Bug: When a node with already-approved routes restarts/re-authenticates,
 // the routes show as "Approved" and "Available" but NOT "Serving" (Primary).

@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/hscontrol/util"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/sasha-s/go-deadlock"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/util"
 	"tailscale.com/tailcfg"
 	"tailscale.com/util/zstdframe"
 )

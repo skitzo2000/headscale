@@ -10,10 +10,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/juanfont/headscale/hscontrol/policy/matcher"
-	"github.com/juanfont/headscale/hscontrol/policy/policyutil"
-	"github.com/juanfont/headscale/hscontrol/types"
 	"github.com/rs/zerolog/log"
+	"github.com/skitzo2000/headscale/hscontrol/policy/matcher"
+	"github.com/skitzo2000/headscale/hscontrol/policy/policyutil"
+	"github.com/skitzo2000/headscale/hscontrol/types"
 	"go4.org/netipx"
 	"tailscale.com/net/tsaddr"
 	"tailscale.com/tailcfg"

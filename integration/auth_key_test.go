@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	policyv2 "github.com/juanfont/headscale/hscontrol/policy/v2"
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/integration/hsic"
-	"github.com/juanfont/headscale/integration/tsic"
 	"github.com/samber/lo"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	policyv2 "github.com/skitzo2000/headscale/hscontrol/policy/v2"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/integration/hsic"
+	"github.com/skitzo2000/headscale/integration/tsic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"tailscale.com/tailcfg"
@@ -124,7 +124,7 @@ func TestAuthKeyLogoutAndReloginSameUser(t *testing.T) {
 			// reconnection as the newest Tailscale client has a measure that will only
 			// reconnect over HTTPS if they saw a noise connection previously.
 			// https://github.com/tailscale/tailscale/commit/1eaad7d3deb0815e8932e913ca1a862afa34db38
-			// https://github.com/juanfont/headscale/issues/2164
+			// https://github.com/skitzo2000/headscale/issues/2164
 			if !https {
 				//nolint:forbidigo // Intentional delay: Tailscale client requires 5 min wait before reconnecting over non-HTTPS
 				time.Sleep(5 * time.Minute)
@@ -426,7 +426,7 @@ func TestAuthKeyLogoutAndReloginSameUserExpiredKey(t *testing.T) {
 			// reconnection as the newest Tailscale client has a measure that will only
 			// reconnect over HTTPS if they saw a noise connection previously.
 			// https://github.com/tailscale/tailscale/commit/1eaad7d3deb0815e8932e913ca1a862afa34db38
-			// https://github.com/juanfont/headscale/issues/2164
+			// https://github.com/skitzo2000/headscale/issues/2164
 			if !https {
 				//nolint:forbidigo // Intentional delay: Tailscale client requires 5 min wait before reconnecting over non-HTTPS
 				time.Sleep(5 * time.Minute)
@@ -562,7 +562,7 @@ func TestAuthKeyDeleteKey(t *testing.T) {
 // after a node logs out and re-authenticates with the same user.
 //
 // This test validates the fix for issue #2896:
-// https://github.com/juanfont/headscale/issues/2896
+// https://github.com/skitzo2000/headscale/issues/2896
 //
 // Bug: When a node with already-approved routes restarts/re-authenticates,
 // the routes show as "Approved" and "Available" but NOT "Serving" (Primary).

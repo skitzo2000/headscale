@@ -295,7 +295,7 @@ func checkGitRepository() DoctorResult {
 			Message: "Not in a Git repository",
 			Suggestions: []string{
 				"Run from within the headscale git repository",
-				"Clone the repository: git clone https://github.com/juanfont/headscale.git",
+				"Clone the repository: git clone https://github.com/skitzo2000/headscale.git",
 			},
 		}
 	}

@@ -7,12 +7,13 @@
 package v1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -550,8 +551,8 @@ const file_headscale_v1_user_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\"=\n" +
-	"\x11ListUsersResponse\x12(\n" +
-	"\x05users\x18\x01 \x03(\v2\x12.headscale.v1.UserR\x05usersB)Z'github.com/juanfont/headscale/gen/go/v1b\x06proto3"
+	"\x11ListUsersResponse\x12(\n" +skitzo2000
+	"\x05users\x18\x01 \x03(\v2\x12.headscale.v1.UserR\x05usersB)Z'github.com/skitzo2000/headscale/gen/go/v1b\x06proto3"
 
 var (
 	file_headscale_v1_user_proto_rawDescOnce sync.Once

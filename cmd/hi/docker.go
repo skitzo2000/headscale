@@ -19,7 +19,7 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/juanfont/headscale/integration/dockertestutil"
+	"github.com/skitzo2000/headscale/integration/dockertestutil"
 )
 
 var (

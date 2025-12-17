@@ -4,11 +4,11 @@ import (
 	"net/netip"
 	"slices"
 
-	"github.com/juanfont/headscale/hscontrol/policy/matcher"
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/hscontrol/util"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
+	"github.com/skitzo2000/headscale/hscontrol/policy/matcher"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/util"
 	"tailscale.com/net/tsaddr"
 	"tailscale.com/types/views"
 )

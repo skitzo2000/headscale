@@ -8,10 +8,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/hscontrol/types/change"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/types/change"
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/ptr"
 )

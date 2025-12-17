@@ -3,12 +3,12 @@ package integration
 import (
 	"net/netip"
 
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	"github.com/juanfont/headscale/hscontrol"
-	policyv2 "github.com/juanfont/headscale/hscontrol/policy/v2"
-	"github.com/juanfont/headscale/hscontrol/routes"
-	"github.com/juanfont/headscale/hscontrol/types"
 	"github.com/ory/dockertest/v3"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	"github.com/skitzo2000/headscale/hscontrol"
+	policyv2 "github.com/skitzo2000/headscale/hscontrol/policy/v2"
+	"github.com/skitzo2000/headscale/hscontrol/routes"
+	"github.com/skitzo2000/headscale/hscontrol/types"
 	"tailscale.com/tailcfg"
 )
 

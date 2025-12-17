@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	"github.com/juanfont/headscale/integration/hsic"
-	"github.com/juanfont/headscale/integration/tsic"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	"github.com/skitzo2000/headscale/integration/hsic"
+	"github.com/skitzo2000/headscale/integration/tsic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -21,8 +21,8 @@ import (
 // TestAPIAuthenticationBypass tests that the API authentication middleware
 // properly blocks unauthorized requests and does not leak sensitive data.
 // This test reproduces the security issue described in:
-// - https://github.com/juanfont/headscale/issues/2809
-// - https://github.com/juanfont/headscale/pull/2810
+// - https://github.com/skitzo2000/headscale/issues/2809
+// - https://github.com/skitzo2000/headscale/pull/2810
 //
 // The bug: When authentication fails, the middleware writes "Unauthorized"
 // but doesn't return early, allowing the handler to execute and append

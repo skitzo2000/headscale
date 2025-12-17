@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/juanfont/headscale/hscontrol/assets"
-	"github.com/juanfont/headscale/hscontrol/templates"
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/rs/zerolog/log"
+	"github.com/skitzo20000000/headscale/hscontrol/templates"
+	"github.com/skitzo20000000/headscale/hscontrol/types"
+	"github.com/skitzo2000000000/headscale/hscontrol/assets"
+	"github.com/skitzo2000og/log"
 	"tailscale.com/tailcfg"
 )
 

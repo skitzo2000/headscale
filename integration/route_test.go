@@ -14,14 +14,14 @@ import (
 
 	cmpdiff "github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	v1 "github.com/juanfont/headscale/gen/go/headscale/v1"
-	policyv2 "github.com/juanfont/headscale/hscontrol/policy/v2"
-	"github.com/juanfont/headscale/hscontrol/routes"
-	"github.com/juanfont/headscale/hscontrol/types"
-	"github.com/juanfont/headscale/hscontrol/util"
-	"github.com/juanfont/headscale/integration/hsic"
-	"github.com/juanfont/headscale/integration/integrationutil"
-	"github.com/juanfont/headscale/integration/tsic"
+	v1 "github.com/skitzo2000/headscale/gen/go/headscale/v1"
+	policyv2 "github.com/skitzo2000/headscale/hscontrol/policy/v2"
+	"github.com/skitzo2000/headscale/hscontrol/routes"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/util"
+	"github.com/skitzo2000/headscale/integration/hsic"
+	"github.com/skitzo2000/headscale/integration/integrationutil"
+	"github.com/skitzo2000/headscale/integration/tsic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	xmaps "golang.org/x/exp/maps"
@@ -1303,7 +1303,7 @@ func TestHASubnetRouterFailover(t *testing.T) {
 // TestSubnetRouteACL verifies that Subnet routes are distributed
 // as expected when ACLs are activated.
 // It implements the issue from
-// https://github.com/juanfont/headscale/issues/1604
+// https://github.com/skitzo2000/headscale/issues/1604
 func TestSubnetRouteACL(t *testing.T) {
 	IntegrationSkip(t)
 

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/juanfont/headscale/hscontrol/util"
 	"github.com/ory/dockertest/v3"
+	"github.com/skitzo2000/headscale/hscontrol/util"
 )
 
 const (

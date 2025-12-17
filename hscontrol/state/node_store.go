@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/juanfont/headscale/hscontrol/types"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/skitzo2000/headscale/hscontrol/types"
 	"tailscale.com/types/key"
 	"tailscale.com/types/views"
 )
