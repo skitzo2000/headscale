@@ -55,13 +55,6 @@ service HeadscaleService {
     };
   }
 
-  rpc DeletePreAuthKey(DeletePreAuthKeyRequest)
-      returns (DeletePreAuthKeyResponse) {
-    option (google.api.http) = {
-      delete : "/api/v1/preauthkey"
-    };
-  }
-
   rpc ListPreAuthKeys(ListPreAuthKeysRequest)
       returns (ListPreAuthKeysResponse) {
     option (google.api.http) = {
@@ -130,17 +123,17 @@ service HeadscaleService {
     };
   }
 
+  rpc MoveNode(MoveNodeRequest) returns (MoveNodeResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/node/{node_id}/user",
+      body : "*"
+    };
+  }
+
   rpc BackfillNodeIPs(BackfillNodeIPsRequest)
       returns (BackfillNodeIPsResponse) {
     option (google.api.http) = {
       post : "/api/v1/node/backfillips"
-    };
-  }
-
-  rpc SetNodeIP(SetNodeIPRequest) returns (SetNodeIPResponse) {
-    option (google.api.http) = {
-      post : "/api/v1/node/{node_id}/ip"
-      body : "*"
     };
   }
 

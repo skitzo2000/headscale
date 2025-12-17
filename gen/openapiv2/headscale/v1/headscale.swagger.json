@@ -420,45 +420,6 @@
         ]
       }
     },
-    "/api/v1/node/{nodeId}/ip": {
-      "post": {
-        "operationId": "HeadscaleService_SetNodeIP",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1SetNodeIPResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "nodeId",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/HeadscaleServiceSetNodeIPBody"
-            }
-          }
-        ],
-        "tags": [
-          "HeadscaleService"
-        ]
-      }
-    },
     "/api/v1/node/{nodeId}/rename/{newName}": {
       "post": {
         "operationId": "HeadscaleService_RenameNode",
@@ -527,6 +488,45 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/HeadscaleServiceSetTagsBody"
+            }
+          }
+        ],
+        "tags": [
+          "HeadscaleService"
+        ]
+      }
+    },
+    "/api/v1/node/{nodeId}/user": {
+      "post": {
+        "operationId": "HeadscaleService_MoveNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MoveNodeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nodeId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HeadscaleServiceMoveNodeBody"
             }
           }
         ],
@@ -612,41 +612,6 @@
             "required": false,
             "type": "string",
             "format": "uint64"
-          }
-        ],
-        "tags": [
-          "HeadscaleService"
-        ]
-      },
-      "delete": {
-        "operationId": "HeadscaleService_DeletePreAuthKey",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeletePreAuthKeyResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "user",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "key",
-            "in": "query",
-            "required": false,
-            "type": "string"
           }
         ],
         "tags": [
@@ -861,6 +826,15 @@
     }
   },
   "definitions": {
+    "HeadscaleServiceMoveNodeBody": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "HeadscaleServiceSetApprovedRoutesBody": {
       "type": "object",
       "properties": {
@@ -869,19 +843,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "HeadscaleServiceSetNodeIPBody": {
-      "type": "object",
-      "properties": {
-        "ipv4": {
-          "type": "string",
-          "title": "IPv4 address (required)"
-        },
-        "ipv6": {
-          "type": "string",
-          "title": "IPv6 address (optional, will be auto-generated if not provided)"
         }
       }
     },
@@ -1068,9 +1029,6 @@
     "v1DeleteNodeResponse": {
       "type": "object"
     },
-    "v1DeletePreAuthKeyResponse": {
-      "type": "object"
-    },
     "v1DeleteUserResponse": {
       "type": "object"
     },
@@ -1181,6 +1139,14 @@
             "type": "object",
             "$ref": "#/definitions/v1User"
           }
+        }
+      }
+    },
+    "v1MoveNodeResponse": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/v1Node"
         }
       }
     },
@@ -1347,14 +1313,6 @@
       }
     },
     "v1SetApprovedRoutesResponse": {
-      "type": "object",
-      "properties": {
-        "node": {
-          "$ref": "#/definitions/v1Node"
-        }
-      }
-    },
-    "v1SetNodeIPResponse": {
       "type": "object",
       "properties": {
         "node": {
