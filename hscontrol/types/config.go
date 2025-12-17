@@ -299,10 +299,10 @@ type Tuning struct {
 	NodeStoreBatchTimeout time.Duration
 }
 
-// StaticNodesConfig maps node hostname/shortname to their static IP addresses
+// StaticNodesConfig maps node hostname/shortname to their static IP addresses.
 type StaticNodesConfig map[string]StaticNodeIPs
 
-// StaticNodeIPs defines static IP addresses for a node
+// StaticNodeIPs defines static IP addresses for a node.
 type StaticNodeIPs struct {
 	IPv4 []string `mapstructure:"ipv4"`
 	IPv6 []string `mapstructure:"ipv6"`
@@ -312,6 +312,7 @@ func validatePKCEMethod(method string) error {
 	if method != PKCEMethodPlain && method != PKCEMethodS256 {
 		return errInvalidPKCEMethod
 	}
+
 	return nil
 }
 
@@ -337,6 +338,7 @@ func LoadConfig(path string, isFile bool) error {
 		viper.SetConfigFile(path)
 	} else {
 		viper.SetConfigName("config")
+
 		if path == "" {
 			viper.AddConfigPath("/etc/headscale/")
 			viper.AddConfigPath("$HOME/.headscale")
@@ -411,8 +413,10 @@ func LoadConfig(path string, isFile bool) error {
 
 	viper.SetDefault("prefixes.allocation", string(IPAllocationStrategySequential))
 
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+	err := viper.ReadInConfig()
+	if err != nil {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
 			log.Warn().Msg("No config file found, using defaults")
 			return nil
 		}
@@ -452,7 +456,8 @@ func validateServerConfig() error {
 	depr.fatal("oidc.map_legacy_users")
 
 	if viper.GetBool("oidc.enabled") {
-		if err := validatePKCEMethod(viper.GetString("oidc.pkce.method")); err != nil {
+		err := validatePKCEMethod(viper.GetString("oidc.pkce.method"))
+		if err != nil {
 			return err
 		}
 	}
@@ -566,6 +571,7 @@ func derpConfig() DERPConfig {
 	automaticallyAddEmbeddedDerpRegion := viper.GetBool(
 		"derp.server.automatically_add_embedded_derp_region",
 	)
+
 	if serverEnabled && stunAddr == "" {
 		log.Fatal().
 			Msg("derp.server.stun_listen_addr must be set if derp.server.enabled is true")
@@ -635,13 +641,16 @@ func policyConfig() PolicyConfig {
 
 func logConfig() LogConfig {
 	logLevelStr := viper.GetString("log.level")
+
 	logLevel, err := zerolog.ParseLevel(logLevelStr)
 	if err != nil {
 		logLevel = zerolog.DebugLevel
 	}
 
 	logFormatOpt := viper.GetString("log.format")
+
 	var logFormat string
+
 	switch logFormatOpt {
 	case JSONLogFormat:
 		logFormat = JSONLogFormat
@@ -668,12 +677,14 @@ func staticNodesConfig() StaticNodesConfig {
 	}
 
 	var staticNodes StaticNodesConfig
+
 	err := viper.UnmarshalKey("static_nodes", &staticNodes)
 	if err != nil {
 		log.Warn().
 			Caller().
 			Err(err).
 			Msg("Failed to parse static_nodes configuration, ignoring")
+
 		return make(StaticNodesConfig)
 	}
 
@@ -758,6 +769,7 @@ func dns() (DNSConfig, error) {
 		if err != nil {
 			return DNSConfig{}, fmt.Errorf("unmarshalling dns extra records: %w", err)
 		}
+
 		dns.ExtraRecords = extraRecords
 	}
 
@@ -774,6 +786,7 @@ func (d *DNSConfig) globalResolvers() []*dnstype.Resolver {
 
 	for _, nsStr := range d.Nameservers.Global {
 		warn := ""
+
 		if _, err := netip.ParseAddr(nsStr); err == nil {
 			resolvers = append(resolvers, &dnstype.Resolver{
 				Addr: nsStr,
@@ -810,8 +823,10 @@ func (d *DNSConfig) splitResolvers() map[string][]*dnstype.Resolver {
 	routes := make(map[string][]*dnstype.Resolver)
 	for domain, nameservers := range d.Nameservers.Split {
 		var resolvers []*dnstype.Resolver
+
 		for _, nsStr := range nameservers {
 			warn := ""
+
 			if _, err := netip.ParseAddr(nsStr); err == nil {
 				resolvers = append(resolvers, &dnstype.Resolver{
 					Addr: nsStr,
@@ -836,6 +851,7 @@ func (d *DNSConfig) splitResolvers() map[string][]*dnstype.Resolver {
 				log.Warn().Msg(warn)
 			}
 		}
+
 		routes[domain] = resolvers
 	}
 
@@ -850,6 +866,7 @@ func dnsToTailcfgDNS(dns DNSConfig) *tailcfg.DNSConfig {
 	}
 
 	cfg.Proxied = dns.MagicDNS
+
 	cfg.ExtraRecords = dns.ExtraRecords
 	if dns.OverrideLocalDNS {
 		cfg.Resolvers = dns.globalResolvers()
@@ -858,10 +875,12 @@ func dnsToTailcfgDNS(dns DNSConfig) *tailcfg.DNSConfig {
 	}
 
 	routes := dns.splitResolvers()
+
 	cfg.Routes = routes
 	if dns.BaseDomain != "" {
 		cfg.Domains = []string{dns.BaseDomain}
 	}
+
 	cfg.Domains = append(cfg.Domains, dns.SearchDomains...)
 
 	return &cfg
@@ -881,6 +900,7 @@ func prefixV4() (*netip.Prefix, error) {
 
 	builder := netipx.IPSetBuilder{}
 	builder.AddPrefix(tsaddr.CGNATRange())
+
 	ipSet, _ := builder.IPSet()
 	if !ipSet.ContainsPrefix(prefixV4) {
 		log.Warn().
@@ -960,7 +980,9 @@ func LoadServerConfig() (*Config, error) {
 	}
 
 	allocStr := viper.GetString("prefixes.allocation")
+
 	var alloc IPAllocationStrategy
+
 	switch allocStr {
 	case string(IPAllocationStrategySequential):
 		alloc = IPAllocationStrategySequential
@@ -985,15 +1007,18 @@ func LoadServerConfig() (*Config, error) {
 	randomizeClientPort := viper.GetBool("randomize_client_port")
 
 	oidcClientSecret := viper.GetString("oidc.client_secret")
+
 	oidcClientSecretPath := viper.GetString("oidc.client_secret_path")
 	if oidcClientSecretPath != "" && oidcClientSecret != "" {
 		return nil, errOidcMutuallyExclusive
 	}
+
 	if oidcClientSecretPath != "" {
 		secretBytes, err := os.ReadFile(os.ExpandEnv(oidcClientSecretPath))
 		if err != nil {
 			return nil, err
 		}
+
 		oidcClientSecret = strings.TrimSpace(string(secretBytes))
 	}
 
@@ -1007,7 +1032,8 @@ func LoadServerConfig() (*Config, error) {
 	// - Control plane runs on login.tailscale.com/controlplane.tailscale.com
 	// - MagicDNS (BaseDomain) for users is on a *.ts.net domain per tailnet (e.g. tail-scale.ts.net)
 	if dnsConfig.BaseDomain != "" {
-		if err := isSafeServerURL(serverURL, dnsConfig.BaseDomain); err != nil {
+		err := isSafeServerURL(serverURL, dnsConfig.BaseDomain)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -1109,6 +1135,7 @@ func LoadServerConfig() (*Config, error) {
 				if workers := viper.GetInt("tuning.batcher_workers"); workers > 0 {
 					return workers
 				}
+
 				return DefaultBatcherWorkers()
 			}(),
 			RegisterCacheCleanup:    viper.GetDuration("tuning.register_cache_cleanup"),
@@ -1146,6 +1173,7 @@ func isSafeServerURL(serverURL, baseDomain string) error {
 	}
 
 	s := len(serverDomainParts)
+
 	b := len(baseDomainParts)
 	for i := range baseDomainParts {
 		if serverDomainParts[s-i-1] != baseDomainParts[b-i-1] {
@@ -1166,6 +1194,7 @@ type deprecator struct {
 func (d *deprecator) warnWithAlias(newKey, oldKey string) {
 	// NOTE: RegisterAlias is called with NEW KEY -> OLD KEY
 	viper.RegisterAlias(newKey, oldKey)
+
 	if viper.IsSet(oldKey) {
 		d.warns.Add(
 			fmt.Sprintf(

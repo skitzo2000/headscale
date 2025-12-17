@@ -138,6 +138,7 @@ func NewState(cfg *types.Config) (*State, error) {
 	for _, node := range nodes {
 		node.IsOnline = ptr.To(false)
 	}
+
 	users, err := db.ListUsers()
 	if err != nil {
 		return nil, fmt.Errorf("loading users: %w", err)
@@ -159,6 +160,7 @@ func NewState(cfg *types.Config) (*State, error) {
 	if batchSize == 0 {
 		batchSize = defaultNodeStoreBatchSize
 	}
+
 	batchTimeout := cfg.Tuning.NodeStoreBatchTimeout
 	if batchTimeout == 0 {
 		batchTimeout = defaultNodeStoreBatchTimeout
@@ -192,7 +194,8 @@ func NewState(cfg *types.Config) (*State, error) {
 func (s *State) Close() error {
 	s.nodeStore.Stop()
 
-	if err := s.db.Close(); err != nil {
+	err := s.db.Close()
+	if err != nil {
 		return fmt.Errorf("closing database: %w", err)
 	}
 
@@ -212,6 +215,7 @@ func policyBytes(db *hsdb.HSDatabase, cfg *types.Config) ([]byte, error) {
 		}
 
 		absPath := util.AbsolutePathFromConfigPath(path)
+
 		policyFile, err := os.Open(absPath)
 		if err != nil {
 			return nil, err
@@ -589,12 +593,14 @@ func (s *State) ListNodes(nodeIDs ...types.NodeID) views.Slice[types.NodeView] {
 
 	// Filter nodes by the requested IDs
 	allNodes := s.nodeStore.ListNodes()
+
 	nodeIDSet := make(map[types.NodeID]struct{}, len(nodeIDs))
 	for _, id := range nodeIDs {
 		nodeIDSet[id] = struct{}{}
 	}
 
 	var filteredNodes []types.NodeView
+
 	for _, node := range allNodes.All() {
 		if _, exists := nodeIDSet[node.ID()]; exists {
 			filteredNodes = append(filteredNodes, node)
@@ -617,12 +623,14 @@ func (s *State) ListPeers(nodeID types.NodeID, peerIDs ...types.NodeID) views.Sl
 
 	// For specific peerIDs, filter from all nodes
 	allNodes := s.nodeStore.ListNodes()
+
 	nodeIDSet := make(map[types.NodeID]struct{}, len(peerIDs))
 	for _, id := range peerIDs {
 		nodeIDSet[id] = struct{}{}
 	}
 
 	var filteredNodes []types.NodeView
+
 	for _, node := range allNodes.All() {
 		if _, exists := nodeIDSet[node.ID()]; exists {
 			filteredNodes = append(filteredNodes, node)
@@ -635,6 +643,7 @@ func (s *State) ListPeers(nodeID types.NodeID, peerIDs ...types.NodeID) views.Sl
 // ListEphemeralNodes retrieves all ephemeral (temporary) nodes in the system.
 func (s *State) ListEphemeralNodes() views.Slice[types.NodeView] {
 	allNodes := s.nodeStore.ListNodes()
+
 	var ephemeralNodes []types.NodeView
 
 	for _, node := range allNodes.All() {
@@ -767,6 +776,7 @@ func (s *State) SetNodeIPs(nodeID types.NodeID, ipv4 *netip.Addr, ipv6 *netip.Ad
 		if ipv4 != nil {
 			node.IPv4 = ipv4
 		}
+
 		if ipv6 != nil {
 			node.IPv6 = ipv6
 		}
@@ -783,7 +793,8 @@ func (s *State) SetNodeIPs(nodeID types.NodeID, ipv4 *netip.Addr, ipv6 *netip.Ad
 
 // RenameNode changes the display name of a node.
 func (s *State) RenameNode(nodeID types.NodeID, newName string) (types.NodeView, change.Change, error) {
-	if err := util.ValidateHostname(newName); err != nil {
+	err := util.ValidateHostname(newName)
+	if err != nil {
 		return types.NodeView{}, change.Change{}, fmt.Errorf("renaming node: %w", err)
 	}
 
@@ -854,8 +865,10 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 		return nil, nil
 	}
 
-	var changes []string
-	var errors []string
+	var (
+		changes []string
+		errors  []string
+	)
 
 	// Get all nodes to match against
 	allNodes, err := s.db.ListNodes()
@@ -867,6 +880,7 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 	for hostname, staticIPs := range s.cfg.StaticNodes {
 		// Find node by hostname or given name
 		var targetNode *types.Node
+
 		for _, node := range allNodes {
 			if node.Hostname == hostname || node.GivenName == hostname {
 				targetNode = node
@@ -879,6 +893,7 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 				Str("hostname", hostname).
 				Msg("Static node configuration found but node not found in database, skipping")
 			errors = append(errors, fmt.Sprintf("node '%s' not found", hostname))
+
 			continue
 		}
 
@@ -888,10 +903,12 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 				Str("hostname", hostname).
 				Msg("Static node configuration has no IPv4 addresses, skipping")
 			errors = append(errors, fmt.Sprintf("node '%s': no IPv4 addresses configured", hostname))
+
 			continue
 		}
 
 		ipv4Str := staticIPs.IPv4[0] // Use first IPv4 if multiple provided
+
 		ipv4, err := util.ValidateIPAddress(ipv4Str)
 		if err != nil {
 			log.Warn().
@@ -900,6 +917,7 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 				Err(err).
 				Msg("Invalid IPv4 address in static node configuration, skipping")
 			errors = append(errors, fmt.Sprintf("node '%s': invalid IPv4 address '%s': %v", hostname, ipv4Str, err))
+
 			continue
 		}
 
@@ -909,26 +927,31 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 				Str("ipv4", ipv4Str).
 				Msg("IPv4 address is not a valid IPv4 address, skipping")
 			errors = append(errors, fmt.Sprintf("node '%s': '%s' is not a valid IPv4 address", hostname, ipv4Str))
+
 			continue
 		}
 
 		// Validate IPv4 is in configured range
 		if s.cfg.PrefixV4 != nil {
-			if err := util.ValidateIPInRange(ipv4, s.cfg.PrefixV4); err != nil {
+			err := util.ValidateIPInRange(ipv4, s.cfg.PrefixV4)
+			if err != nil {
 				log.Warn().
 					Str("hostname", hostname).
 					Str("ipv4", ipv4Str).
 					Err(err).
 					Msg("IPv4 address is outside configured prefix range, skipping")
 				errors = append(errors, fmt.Sprintf("node '%s': %v", hostname, err))
+
 				continue
 			}
 		}
 
 		// Parse and validate IPv6, or generate if not provided
 		var ipv6 *netip.Addr
+
 		if len(staticIPs.IPv6) > 0 {
 			ipv6Str := staticIPs.IPv6[0] // Use first IPv6 if multiple provided
+
 			parsedIPv6, err := util.ValidateIPAddress(ipv6Str)
 			if err != nil {
 				log.Warn().
@@ -944,7 +967,8 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 			} else {
 				// Validate IPv6 is in configured range
 				if s.cfg.PrefixV6 != nil {
-					if err := util.ValidateIPInRange(parsedIPv6, s.cfg.PrefixV6); err != nil {
+					err := util.ValidateIPInRange(parsedIPv6, s.cfg.PrefixV6)
+					if err != nil {
 						log.Warn().
 							Str("hostname", hostname).
 							Str("ipv6", ipv6Str).
@@ -988,6 +1012,7 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 				Err(err).
 				Msg("Failed to apply static IP addresses to node")
 			errors = append(errors, fmt.Sprintf("node '%s': %v", hostname, err))
+
 			continue
 		}
 
@@ -995,8 +1020,10 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 		if ipv6 != nil {
 			changeMsg += fmt.Sprintf(" and IPv6 %q", ipv6.String())
 		}
+
 		changeMsg += fmt.Sprintf(" to Node(%d) %q", targetNode.ID, hostname)
 		changes = append(changes, changeMsg)
+
 		log.Info().
 			Str("hostname", hostname).
 			Str("ipv4", ipv4Str).
@@ -1004,6 +1031,7 @@ func (s *State) ApplyStaticNodes() ([]string, error) {
 				if ipv6 != nil {
 					return ipv6.String()
 				}
+
 				return "none"
 			}()).
 			Msg("Applied static IP addresses to node")
@@ -1279,6 +1307,7 @@ func preserveNetInfo(existingNode types.NodeView, nodeID types.NodeID, validHost
 	if existingNode.Valid() {
 		existingHostinfo = existingNode.Hostinfo().AsStruct()
 	}
+
 	return netInfoFromMapRequest(nodeID, existingHostinfo, validHostinfo)
 }
 
@@ -1345,6 +1374,7 @@ func (s *State) createAndSaveNewNode(params newNodeParams) (types.NodeView, erro
 			nodeToRegister.User = params.PreAuthKey.User
 			nodeToRegister.Tags = nil
 		}
+
 		nodeToRegister.AuthKey = params.PreAuthKey
 		nodeToRegister.AuthKeyID = &params.PreAuthKey.ID
 	} else {
@@ -1410,12 +1440,14 @@ func (s *State) createAndSaveNewNode(params newNodeParams) (types.NodeView, erro
 		if err != nil {
 			return types.NodeView{}, fmt.Errorf("failed to ensure unique given name: %w", err)
 		}
+
 		nodeToRegister.GivenName = givenName
 	}
 
 	// New node - database first to get ID, then NodeStore
 	savedNode, err := hsdb.Write(s.db.DB, func(tx *gorm.DB) (*types.Node, error) {
-		if err := tx.Save(&nodeToRegister).Error; err != nil {
+		err := tx.Save(&nodeToRegister).Error
+		if err != nil {
 			return nil, fmt.Errorf("failed to save node: %w", err)
 		}
 
@@ -1525,6 +1557,7 @@ func (s *State) HandleNodeFromAuthPath(
 			if err != nil {
 				return nil, fmt.Errorf("failed to save node: %w", err)
 			}
+
 			return nil, nil
 		})
 		if err != nil {
@@ -1573,6 +1606,7 @@ func (s *State) HandleNodeFromAuthPath(
 
 		// Create and save new node
 		var err error
+
 		finalNode, err = s.createAndSaveNewNode(newNodeParams{
 			User:                   *user,
 			MachineKey:             regEntry.Node.MachineKey,
@@ -1803,6 +1837,7 @@ func (s *State) HandleNodeFromPreAuthKey(
 
 		// Create and save new node
 		var err error
+
 		finalNode, err = s.createAndSaveNewNode(newNodeParams{
 			User:                   *pak.User,
 			MachineKey:             machineKey,
@@ -1932,7 +1967,9 @@ func (s *State) autoApproveNodes() ([]change.Change, error) {
 				}
 
 				mu.Lock()
+
 				cs = append(cs, c)
+
 				mu.Unlock()
 			}
 
@@ -2002,6 +2039,7 @@ func (s *State) UpdateNodeFromMapRequest(id types.NodeID, req tailcfg.MapRequest
 		if hi := req.Hostinfo; hi != nil {
 			hasNewRoutes = len(hi.RoutableIPs) > 0
 		}
+
 		needsRouteApproval = hostinfoChanged && (routesChanged(currentNode.View(), req.Hostinfo) || (hasNewRoutes && len(currentNode.ApprovedRoutes) == 0))
 		if needsRouteApproval {
 			// Extract announced routes from request
@@ -2154,6 +2192,7 @@ func hostinfoEqual(oldNode types.NodeView, newHI *tailcfg.Hostinfo) bool {
 	if !oldNode.Valid() || newHI == nil {
 		return false
 	}
+
 	old := oldNode.AsStruct().Hostinfo
 
 	return old.Equal(newHI)

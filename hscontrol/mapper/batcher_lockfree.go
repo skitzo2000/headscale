@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"sync"
@@ -77,6 +78,7 @@ func (b *LockFreeBatcher) AddNode(id types.NodeID, c chan<- *tailcfg.MapResponse
 	if err != nil {
 		log.Error().Uint64("node.id", id.Uint64()).Err(err).Msg("Initial map generation failed")
 		nodeConn.removeConnectionByChannel(c)
+
 		return fmt.Errorf("failed to generate initial map for node %d: %w", id, err)
 	}
 
@@ -86,10 +88,11 @@ func (b *LockFreeBatcher) AddNode(id types.NodeID, c chan<- *tailcfg.MapResponse
 	case c <- initialMap:
 		// Success
 	case <-time.After(5 * time.Second):
-		log.Error().Uint64("node.id", id.Uint64()).Err(fmt.Errorf("timeout")).Msg("Initial map send timeout")
+		log.Error().Uint64("node.id", id.Uint64()).Err(errors.New("timeout")).Msg("Initial map send timeout")
 		log.Debug().Caller().Uint64("node.id", id.Uint64()).Dur("timeout.duration", 5*time.Second).
 			Msg("Initial map send timed out because channel was blocked or receiver not ready")
 		nodeConn.removeConnectionByChannel(c)
+
 		return fmt.Errorf("failed to send initial map to node %d: timeout", id)
 	}
 
@@ -129,6 +132,7 @@ func (b *LockFreeBatcher) RemoveNode(id types.NodeID, c chan<- *tailcfg.MapRespo
 		log.Debug().Caller().Uint64("node.id", id.Uint64()).
 			Int("active.connections", nodeConn.getActiveConnectionCount()).
 			Msg("Node connection removed but keeping online because other connections remain")
+
 		return true // Node still has active connections
 	}
 
@@ -209,10 +213,12 @@ func (b *LockFreeBatcher) worker(workerID int) {
 			// This is used for synchronous map generation.
 			if w.resultCh != nil {
 				var result workResult
+
 				if nc, exists := b.nodes.Load(w.nodeID); exists {
 					var err error
 
 					result.mapResponse, err = generateMapResponse(nc, b.mapper, w.r)
+
 					result.err = err
 					if result.err != nil {
 						b.workErrors.Add(1)
@@ -366,6 +372,7 @@ func (b *LockFreeBatcher) cleanupOfflineNodes() {
 				}
 			}
 		}
+
 		return true
 	})
 
@@ -418,6 +425,7 @@ func (b *LockFreeBatcher) ConnectedMap() *xsync.Map[types.NodeID, bool] {
 		if nodeConn.hasActiveConnections() {
 			ret.Store(id, true)
 		}
+
 		return true
 	})
 
@@ -433,6 +441,7 @@ func (b *LockFreeBatcher) ConnectedMap() *xsync.Map[types.NodeID, bool] {
 				ret.Store(id, false)
 			}
 		}
+
 		return true
 	})
 
@@ -487,7 +496,8 @@ type multiChannelNodeConn struct {
 func generateConnectionID() string {
 	bytes := make([]byte, 8)
 	rand.Read(bytes)
-	return fmt.Sprintf("%x", bytes)
+
+	return hex.EncodeToString(bytes)
 }
 
 // newMultiChannelNodeConn creates a new multi-channel node connection.
@@ -514,11 +524,14 @@ func (mc *multiChannelNodeConn) close() {
 // addConnection adds a new connection.
 func (mc *multiChannelNodeConn) addConnection(entry *connectionEntry) {
 	mutexWaitStart := time.Now()
+
 	log.Debug().Caller().Uint64("node.id", mc.id.Uint64()).Str("chan", fmt.Sprintf("%p", entry.c)).Str("conn.id", entry.id).
 		Msg("addConnection: waiting for mutex - POTENTIAL CONTENTION POINT")
 
 	mc.mutex.Lock()
+
 	mutexWaitDur := time.Since(mutexWaitStart)
+
 	defer mc.mutex.Unlock()
 
 	mc.connections = append(mc.connections, entry)
@@ -540,9 +553,11 @@ func (mc *multiChannelNodeConn) removeConnectionByChannel(c chan<- *tailcfg.MapR
 			log.Debug().Caller().Uint64("node.id", mc.id.Uint64()).Str("chan", fmt.Sprintf("%p", c)).
 				Int("remaining_connections", len(mc.connections)).
 				Msg("Successfully removed connection")
+
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -576,6 +591,7 @@ func (mc *multiChannelNodeConn) send(data *tailcfg.MapResponse) error {
 		// This is not an error - the node will receive a full map when it reconnects
 		log.Debug().Caller().Uint64("node.id", mc.id.Uint64()).
 			Msg("send: skipping send to node with no active connections (likely rapid reconnection)")
+
 		return nil // Return success instead of error
 	}
 
@@ -584,7 +600,9 @@ func (mc *multiChannelNodeConn) send(data *tailcfg.MapResponse) error {
 		Msg("send: broadcasting to all connections")
 
 	var lastErr error
+
 	successCount := 0
+
 	var failedConnections []int // Track failed connections for removal
 
 	// Send to all connections
@@ -593,8 +611,10 @@ func (mc *multiChannelNodeConn) send(data *tailcfg.MapResponse) error {
 			Str("conn.id", conn.id).Int("connection_index", i).
 			Msg("send: attempting to send to connection")
 
-		if err := conn.send(data); err != nil {
+		err := conn.send(data)
+		if err != nil {
 			lastErr = err
+
 			failedConnections = append(failedConnections, i)
 			log.Warn().Err(err).
 				Uint64("node.id", mc.id.Uint64()).Str("chan", fmt.Sprintf("%p", conn.c)).
@@ -602,6 +622,7 @@ func (mc *multiChannelNodeConn) send(data *tailcfg.MapResponse) error {
 				Msg("send: connection send failed")
 		} else {
 			successCount++
+
 			log.Debug().Caller().Uint64("node.id", mc.id.Uint64()).Str("chan", fmt.Sprintf("%p", conn.c)).
 				Str("conn.id", conn.id).Int("connection_index", i).
 				Msg("send: successfully sent to connection")
@@ -766,6 +787,7 @@ func (b *LockFreeBatcher) Debug() map[types.NodeID]DebugNodeInfo {
 			Connected:         connected,
 			ActiveConnections: activeConnCount,
 		}
+
 		return true
 	})
 
@@ -780,6 +802,7 @@ func (b *LockFreeBatcher) Debug() map[types.NodeID]DebugNodeInfo {
 				ActiveConnections: 0,
 			}
 		}
+
 		return true
 	})
 

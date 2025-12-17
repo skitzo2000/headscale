@@ -19,11 +19,13 @@ import (
 
 // cleanupBeforeTest performs cleanup operations before running tests.
 func cleanupBeforeTest(ctx context.Context) error {
-	if err := killTestContainers(ctx); err != nil {
+	err := killTestContainers(ctx)
+	if err != nil {
 		return fmt.Errorf("failed to kill test containers: %w", err)
 	}
 
-	if err := pruneDockerNetworks(ctx); err != nil {
+	err := pruneDockerNetworks(ctx)
+	if err != nil {
 		return fmt.Errorf("failed to prune networks: %w", err)
 	}
 
@@ -53,8 +55,10 @@ func killTestContainers(ctx context.Context) error {
 	}
 
 	removed := 0
+
 	for _, cont := range containers {
 		shouldRemove := false
+
 		for _, name := range cont.Names {
 			if strings.Contains(name, "headscale-test-suite") ||
 				strings.Contains(name, "hs-") ||
@@ -149,8 +153,10 @@ func cleanOldImages(ctx context.Context) error {
 	}
 
 	removed := 0
+
 	for _, img := range images {
 		shouldRemove := false
+
 		for _, tag := range img.RepoTags {
 			if strings.Contains(tag, "hs-") ||
 				strings.Contains(tag, "headscale-integration") ||
@@ -192,6 +198,7 @@ func cleanCacheVolume(ctx context.Context) error {
 	defer cli.Close()
 
 	volumeName := "hs-integration-go-cache"
+
 	err = cli.VolumeRemove(ctx, volumeName, true)
 	if err != nil {
 		if errdefs.IsNotFound(err) {

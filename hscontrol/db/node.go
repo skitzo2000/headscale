@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/skitzo2000/headscale/hscontrol/types"
 	"github.com/skitzo2000/headscale/hscontrol/util"
-	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 	"tailscale.com/net/tsaddr"
 	"tailscale.com/types/key"
@@ -51,12 +51,13 @@ func (hsdb *HSDatabase) ListPeers(nodeID types.NodeID, peerIDs ...types.NodeID) 
 // If at least one peer ID is given, only these peer nodes will be returned.
 func ListPeers(tx *gorm.DB, nodeID types.NodeID, peerIDs ...types.NodeID) (types.Nodes, error) {
 	nodes := types.Nodes{}
-	if err := tx.
+	err := tx.
 		Preload("AuthKey").
 		Preload("AuthKey.User").
 		Preload("User").
 		Where("id <> ?", nodeID).
-		Where(peerIDs).Find(&nodes).Error; err != nil {
+		Where(peerIDs).Find(&nodes).Error
+	if err != nil {
 		return types.Nodes{}, err
 	}
 
@@ -75,11 +76,12 @@ func (hsdb *HSDatabase) ListNodes(nodeIDs ...types.NodeID) (types.Nodes, error) 
 // or for the given nodes if at least one node ID is given as parameter.
 func ListNodes(tx *gorm.DB, nodeIDs ...types.NodeID) (types.Nodes, error) {
 	nodes := types.Nodes{}
-	if err := tx.
+	err := tx.
 		Preload("AuthKey").
 		Preload("AuthKey.User").
 		Preload("User").
-		Where(nodeIDs).Find(&nodes).Error; err != nil {
+		Where(nodeIDs).Find(&nodes).Error
+	if err != nil {
 		return nil, err
 	}
 
@@ -89,7 +91,8 @@ func ListNodes(tx *gorm.DB, nodeIDs ...types.NodeID) (types.Nodes, error) {
 func (hsdb *HSDatabase) ListEphemeralNodes() (types.Nodes, error) {
 	return Read(hsdb.DB, func(rx *gorm.DB) (types.Nodes, error) {
 		nodes := types.Nodes{}
-		if err := rx.Joins("AuthKey").Where(`"AuthKey"."ephemeral" = true`).Find(&nodes).Error; err != nil {
+		err := rx.Joins("AuthKey").Where(`"AuthKey"."ephemeral" = true`).Find(&nodes).Error
+		if err != nil {
 			return nil, err
 		}
 
@@ -207,6 +210,7 @@ func SetTags(
 
 	slices.Sort(tags)
 	tags = slices.Compact(tags)
+
 	b, err := json.Marshal(tags)
 	if err != nil {
 		return err
@@ -241,7 +245,7 @@ func (hsdb *HSDatabase) SetNodeIPs(
 // - IP address format invalid
 // - IP address outside configured range
 // - IP address conflict (already assigned to another node)
-// - Database update failure
+// - Database update failure.
 func SetNodeIPs(
 	tx *gorm.DB,
 	nodeID types.NodeID,
@@ -265,9 +269,10 @@ func SetNodeIPs(
 		}
 		// Check for conflicts
 		var conflictingNode types.Node
-		if err := tx.Model(&types.Node{}).
+		err := tx.Model(&types.Node{}).
 			Where("(ipv4 = ? OR ipv6 = ?) AND id != ?", ipv4.String(), ipv4.String(), nodeID).
-			First(&conflictingNode).Error; err == nil {
+			First(&conflictingNode).Error
+		if err == nil {
 			return fmt.Errorf("IPv4 address %s is already assigned to node %d (%s). Please choose a different address", ipv4, conflictingNode.ID, conflictingNode.Hostname)
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("database error while checking for IP conflicts: %w", err)
@@ -283,9 +288,10 @@ func SetNodeIPs(
 		}
 		// Check for conflicts
 		var conflictingNode types.Node
-		if err := tx.Model(&types.Node{}).
+		err := tx.Model(&types.Node{}).
 			Where("(ipv4 = ? OR ipv6 = ?) AND id != ?", ipv6.String(), ipv6.String(), nodeID).
-			First(&conflictingNode).Error; err == nil {
+			First(&conflictingNode).Error
+		if err == nil {
 			return fmt.Errorf("IPv6 address %s is already assigned to node %d (%s). Please choose a different address", ipv6, conflictingNode.ID, conflictingNode.Hostname)
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("database error while checking for IP conflicts: %w", err)
@@ -297,12 +303,14 @@ func SetNodeIPs(
 	if ipv4 != nil {
 		updates["ipv4"] = ipv4.String()
 	}
+
 	if ipv6 != nil {
 		updates["ipv6"] = ipv6.String()
 	}
 
 	if len(updates) > 0 {
-		if err := tx.Model(&types.Node{}).Where("id = ?", nodeID).Updates(updates).Error; err != nil {
+		err := tx.Model(&types.Node{}).Where("id = ?", nodeID).Updates(updates).Error
+		if err != nil {
 			return fmt.Errorf("failed to update node IP addresses in database: %w", err)
 		}
 	}
@@ -313,14 +321,16 @@ func SetNodeIPs(
 // GetNodeByHostname finds a node by hostname or given name across all users.
 func GetNodeByHostname(tx *gorm.DB, hostname string) (*types.Node, error) {
 	var node types.Node
-	if err := tx.
+	err := tx.
 		Preload("AuthKey").
 		Preload("AuthKey.User").
 		Preload("User").
 		Where("hostname = ? OR given_name = ?", hostname, hostname).
-		First(&node).Error; err != nil {
+		First(&node).Error
+	if err != nil {
 		return nil, fmt.Errorf("node not found: %w", err)
 	}
+
 	return &node, nil
 }
 
@@ -332,7 +342,8 @@ func SetApprovedRoutes(
 ) error {
 	if len(routes) == 0 {
 		// if no routes are provided, we remove all
-		if err := tx.Model(&types.Node{}).Where("id = ?", nodeID).Update("approved_routes", "[]").Error; err != nil {
+		err := tx.Model(&types.Node{}).Where("id = ?", nodeID).Update("approved_routes", "[]").Error
+		if err != nil {
 			return fmt.Errorf("removing approved routes: %w", err)
 		}
 
@@ -381,13 +392,15 @@ func SetLastSeen(tx *gorm.DB, nodeID types.NodeID, lastSeen time.Time) error {
 func RenameNode(tx *gorm.DB,
 	nodeID types.NodeID, newName string,
 ) error {
-	if err := util.ValidateHostname(newName); err != nil {
+	err := util.ValidateHostname(newName)
+	if err != nil {
 		return fmt.Errorf("renaming node: %w", err)
 	}
 
 	// Check if the new name is unique
 	var count int64
-	if err := tx.Model(&types.Node{}).Where("given_name = ? AND id != ?", newName, nodeID).Count(&count).Error; err != nil {
+	err := tx.Model(&types.Node{}).Where("given_name = ? AND id != ?", newName, nodeID).Count(&count).Error
+	if err != nil {
 		return fmt.Errorf("failed to check name uniqueness: %w", err)
 	}
 
@@ -395,7 +408,8 @@ func RenameNode(tx *gorm.DB,
 		return errors.New("name is not unique")
 	}
 
-	if err := tx.Model(&types.Node{}).Where("id = ?", nodeID).Update("given_name", newName).Error; err != nil {
+	err := tx.Model(&types.Node{}).Where("id = ?", nodeID).Update("given_name", newName).Error
+	if err != nil {
 		return fmt.Errorf("failed to rename node in the database: %w", err)
 	}
 
@@ -427,7 +441,8 @@ func DeleteNode(tx *gorm.DB,
 	node *types.Node,
 ) error {
 	// Unscoped causes the node to be fully removed from the database.
-	if err := tx.Unscoped().Delete(&types.Node{}, node.ID).Error; err != nil {
+	err := tx.Unscoped().Delete(&types.Node{}, node.ID).Error
+	if err != nil {
 		return err
 	}
 
@@ -441,9 +456,11 @@ func (hsdb *HSDatabase) DeleteEphemeralNode(
 	nodeID types.NodeID,
 ) error {
 	return hsdb.Write(func(tx *gorm.DB) error {
-		if err := tx.Unscoped().Delete(&types.Node{}, nodeID).Error; err != nil {
+		err := tx.Unscoped().Delete(&types.Node{}, nodeID).Error
+		if err != nil {
 			return err
 		}
+
 		return nil
 	})
 }
@@ -483,6 +500,7 @@ func RegisterNodeForTest(tx *gorm.DB, node types.Node, ipv4 *netip.Addr, ipv6 *n
 		if ipv4 == nil {
 			ipv4 = oldNode.IPv4
 		}
+
 		if ipv6 == nil {
 			ipv6 = oldNode.IPv6
 		}
@@ -492,7 +510,8 @@ func RegisterNodeForTest(tx *gorm.DB, node types.Node, ipv4 *netip.Addr, ipv6 *n
 	// so we store the node.Expire and node.Nodekey that has been set when
 	// adding it to the registrationCache
 	if node.IPv4 != nil || node.IPv6 != nil {
-		if err := tx.Save(&node).Error; err != nil {
+		err := tx.Save(&node).Error
+		if err != nil {
 			return nil, fmt.Errorf("failed register existing node in the database: %w", err)
 		}
 
@@ -511,6 +530,7 @@ func RegisterNodeForTest(tx *gorm.DB, node types.Node, ipv4 *netip.Addr, ipv6 *n
 	node.IPv6 = ipv6
 
 	var err error
+
 	node.Hostname, err = util.NormaliseHostname(node.Hostname)
 	if err != nil {
 		newHostname := util.InvalidString()
@@ -595,8 +615,9 @@ func generateGivenName(suppliedName string, randomSuffix bool) (string, error) {
 
 func isUniqueName(tx *gorm.DB, name string) (bool, error) {
 	nodes := types.Nodes{}
-	if err := tx.
-		Where("given_name = ?", name).Find(&nodes).Error; err != nil {
+	err := tx.
+		Where("given_name = ?", name).Find(&nodes).Error
+	if err != nil {
 		return false, err
 	}
 
@@ -798,9 +819,12 @@ func (hsdb *HSDatabase) CreateRegisteredNodeForTest(user *types.User, hostname .
 	}
 
 	var registeredNode *types.Node
+
 	err = hsdb.DB.Transaction(func(tx *gorm.DB) error {
 		var err error
+
 		registeredNode, err = RegisterNodeForTest(tx, *node, ipv4, ipv6)
+
 		return err
 	})
 	if err != nil {

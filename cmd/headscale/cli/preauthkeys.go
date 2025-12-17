@@ -31,6 +31,7 @@ func init() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("")
 	}
+
 	preauthkeysCmd.AddCommand(listPreAuthKeys)
 	preauthkeysCmd.AddCommand(createPreAuthKeyCmd)
 	preauthkeysCmd.AddCommand(expirePreAuthKeyCmd)
