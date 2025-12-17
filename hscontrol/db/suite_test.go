@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/skitzo2000/headscale/hscontrol/types"
-	"github.com/skitzo2000og"
+	"github.com/rs/zerolog"
 	"gopkg.in/check.v1"
 	"zombiezen.com/go/postgrestest"
 )

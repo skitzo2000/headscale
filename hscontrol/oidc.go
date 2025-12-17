@@ -13,12 +13,12 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gorilla/mux"
-	"github.com/skitzo20000000/headscale/hscontrol/util"
-	"github.com/skitzo2000000000/headscale/hscontrol/db"
-	"github.com/skitzo2000000000/headscale/hscontrol/templates"
-	"github.com/skitzo2000000000/headscale/hscontrol/types"
-	"github.com/skitzo2000000000/headscale/hscontrol/types/change"
-	"github.com/skitzo2000og/log"
+	"github.com/skitzo2000/headscale/hscontrol/util"
+	"github.com/skitzo2000/headscale/hscontrol/db"
+	"github.com/skitzo2000/headscale/hscontrol/templates"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/types/change"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 	"zgo.at/zcache/v2"
 )

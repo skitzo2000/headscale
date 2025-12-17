@@ -16,7 +16,7 @@ import (
 
 	"github.com/skitzo2000/headscale/hscontrol/types"
 	"github.com/skitzo2000/headscale/hscontrol/util"
-	"github.com/skitzo2000og/log"
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 	"tailscale.com/net/tsaddr"
 	"tailscale.com/types/key"

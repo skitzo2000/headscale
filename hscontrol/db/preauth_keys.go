@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/skitzo2000/headscale/hscontrol/util"
-	"github.com/skitzo200000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/types"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"tailscale.com/util/set"

@@ -7,13 +7,12 @@
 package v1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -821,7 +820,7 @@ const file_headscale_v1_device_proto_rawDesc = "" +
 	"\x06routes\x18\x02 \x03(\tR\x06routes\"p\n" +
 	"\x1aEnableDeviceRoutesResponse\x12%\n" +
 	"\x0eenabled_routes\x18\x01 \x03(\tR\renabledRoutes\x12+\n" +
-	"\x11advertised_routes\x18\x02 \x03(\tR\x10advertisedRoutesB)Z'github.com/skitzo2000/headscale/gen/go/v1b\x06proto3"
+	"\x11advertised_routes\x18\x02 \x03(\tR\x10advertisedRoutesB+Z)github.com/skitzo2000/headscale/gen/go/v1b\x06proto3"
 
 var (
 	file_headscale_v1_device_proto_rawDescOnce sync.Once

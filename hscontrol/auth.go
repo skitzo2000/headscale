@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/skitzo2000/headscale/hscontrol/util"
-	"github.com/skitzo200000/headscale/hscontrol/types"
-	"github.com/skitzo2000og/log"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
@@ -72,7 +72,7 @@ func (h *Headscale) handleRegister(
 		if node, ok := h.state.GetNodeByNodeKey(req.NodeKey); ok {
 			// When tailscaled restarts, it sends RegisterRequest with Auth=nil and Expiry=zero.
 			// Return the current node state without modification.
-			// See: https://github.com/skitzo20000000/headscale/issues/2862
+			// See: https://github.com/skitzo2000/headscale/issues/2862
 			if req.Expiry.IsZero() && node.Expiry().Valid() && !node.IsExpired() {
 				return nodeToRegisterResponse(node), nil
 			}

@@ -14,8 +14,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/skitzo2000/headscale/hscontrol/util"
-	"github.com/skitzo20000000/headscale/hscontrol/types"
-	"github.com/skitzo2000000000000000/headscale/hscontrol/policy"
+	"github.com/skitzo2000/headscale/hscontrol/types"
+	"github.com/skitzo2000/headscale/hscontrol/policy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/check.v1"
