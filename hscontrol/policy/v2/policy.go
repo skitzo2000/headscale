@@ -932,8 +932,8 @@ func (pm *PolicyManager) invalidateGlobalPolicyCache(newNodes views.Slice[types.
 			// New node - no cache entry yet, will be lazily calculated
 			continue
 		}
-
-		if newNode.HasNetworkChanges(oldNode) {
+		// Invalidate cache if network properties or tags changed
+		if newNode.HasNetworkChanges(oldNode) || !views.SliceEqual(newNode.Tags(), oldNode.Tags()) {
 			delete(pm.filterRulesMap, nodeID)
 		}
 	}
