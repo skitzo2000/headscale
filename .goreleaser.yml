@@ -82,7 +82,7 @@ nfpms:
     priority: optional
     vendor: headscale
     maintainer: Kristoffer Dalby <kristoffer@dalby.cc>
-    homepage: https://github.com/juanfont/headscale
+    homepage: https://github.com/skitzo2000/headscale
     description: |-
       Open source implementation of the Tailscale control server.
       Headscale aims to implement a self-hosted, open source alternative to the
@@ -119,8 +119,7 @@ nfpms:
 kos:
   - id: ghcr
     repositories:
-      - ghcr.io/juanfont/headscale
-      - headscale/headscale
+      - ghcr.io/skitzo2000/headscale
 
     # bare tells KO to only use the repository
     # for tagging and naming the container.
@@ -150,8 +149,7 @@ kos:
 
   - id: ghcr-debug
     repositories:
-      - ghcr.io/juanfont/headscale
-      - headscale/headscale
+      - ghcr.io/skitzo2000/headscale
 
     bare: true
     base_image: gcr.io/distroless/base-debian13:debug

@@ -9,12 +9,10 @@
 
 This documentation has the goal of showing a user how-to set up and run headscale in a container. A container runtime
 such as [Docker](https://www.docker.com) or [Podman](https://podman.io) is required. The container image can be found on
-[Docker Hub](https://hub.docker.com/r/headscale/headscale) and [GitHub Container
-Registry](https://github.com/juanfont/headscale/pkgs/container/headscale). The container image URLs are:
+[GitHub Container Registry](https://github.com/skitzo2000/headscale/pkgs/container/headscale). The container image URL is:
 
-- [Docker Hub](https://hub.docker.com/r/headscale/headscale): `docker.io/headscale/headscale:<VERSION>`
-- [GitHub Container Registry](https://github.com/juanfont/headscale/pkgs/container/headscale):
-  `ghcr.io/juanfont/headscale:<VERSION>`
+- [GitHub Container Registry](https://github.com/skitzo2000/headscale/pkgs/container/headscale):
+  `ghcr.io/skitzo2000/headscale:<VERSION>`
 
 ## Configure and run headscale
 
@@ -41,7 +39,7 @@ Registry](https://github.com/juanfont/headscale/pkgs/container/headscale). The c
       --publish 127.0.0.1:8080:8080 \
       --publish 127.0.0.1:9090:9090 \
       --health-cmd "CMD headscale health" \
-      docker.io/headscale/headscale:<VERSION> \
+      ghcr.io/skitzo2000/headscale:<VERSION> \
       serve
     ```
 
@@ -55,7 +53,7 @@ Registry](https://github.com/juanfont/headscale/pkgs/container/headscale). The c
     ```yaml title="docker-compose.yaml"
     services:
       headscale:
-        image: docker.io/headscale/headscale:<VERSION>
+        image: ghcr.io/skitzo2000/headscale:<VERSION>
         restart: unless-stopped
         container_name: headscale
         read_only: true
@@ -98,11 +96,11 @@ Continue on the [getting started page](../../usage/getting-started.md) to regist
 
 ## Debugging headscale running in Docker
 
-The Headscale container image is based on a "distroless" image that does not contain a shell or any other debug tools. If you need to debug headscale running in the Docker container, you can use the `-debug` variant, for example `docker.io/headscale/headscale:x.x.x-debug`.
+The Headscale container image is based on a "distroless" image that does not contain a shell or any other debug tools. If you need to debug headscale running in the Docker container, you can use the `-debug` variant, for example `ghcr.io/skitzo2000/headscale:x.x.x-debug`.
 
 ### Running the debug Docker container
 
-To run the debug Docker container, use the exact same commands as above, but replace `docker.io/headscale/headscale:x.x.x` with `docker.io/headscale/headscale:x.x.x-debug` (`x.x.x` is the version of headscale). The two containers are compatible with each other, so you can alternate between them.
+To run the debug Docker container, use the exact same commands as above, but replace `ghcr.io/skitzo2000/headscale:x.x.x` with `ghcr.io/skitzo2000/headscale:x.x.x-debug` (`x.x.x` is the version of headscale). The two containers are compatible with each other, so you can alternate between them.
 
 ### Executing commands in the debug container
 
@@ -113,13 +111,13 @@ Additionally, the debug container includes a minimalist Busybox shell.
 To launch a shell in the container, use:
 
 ```shell
-docker run -it docker.io/headscale/headscale:x.x.x-debug sh
+docker run -it ghcr.io/skitzo2000/headscale:x.x.x-debug sh
 ```
 
 You can also execute commands directly, such as `ls /ko-app` in this example:
 
 ```shell
-docker run docker.io/headscale/headscale:x.x.x-debug ls /ko-app
+docker run ghcr.io/skitzo2000/headscale:x.x.x-debug ls /ko-app
 ```
 
 Using `docker exec -it` allows you to run commands in an existing container.
