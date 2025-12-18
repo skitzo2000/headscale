@@ -24,7 +24,7 @@ func cleanupBeforeTest(ctx context.Context) error {
 		return fmt.Errorf("failed to kill test containers: %w", err)
 	}
 
-	err := pruneDockerNetworks(ctx)
+	err = pruneDockerNetworks(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to prune networks: %w", err)
 	}

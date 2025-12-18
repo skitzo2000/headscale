@@ -316,7 +316,7 @@ func requireAllClientsOnlineWithSingleTimeout(t *testing.T, headscale ControlSer
 
 		var failureReport strings.Builder
 
-		ids := types.NodeIDs(slices.AppendSeq(make([]FIXME, 0, len(nodeStatus)), maps.Keys(nodeStatus)))
+		ids := types.NodeIDs(slices.AppendSeq(make([]types.NodeID, 0, len(nodeStatus)), maps.Keys(nodeStatus)))
 		slices.Sort(ids)
 
 		for _, nodeID := range ids {

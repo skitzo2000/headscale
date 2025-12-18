@@ -864,7 +864,7 @@ func (h *Headscale) Serve() error {
 				}
 
 				info("shutting down main http server")
-				err := httpServer.Shutdown(ctx)
+				err = httpServer.Shutdown(ctx)
 				if err != nil {
 					log.Error().Err(err).Msg("failed to shutdown http")
 				}

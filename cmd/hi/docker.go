@@ -809,7 +809,7 @@ func extractContainerArtifacts(ctx context.Context, cli *client.Client, containe
 	}
 
 	// Extract container logs
-	err := extractContainerLogs(ctx, cli, containerID, containerName, logsDir, verbose)
+	err = extractContainerLogs(ctx, cli, containerID, containerName, logsDir, verbose)
 	if err != nil {
 		return fmt.Errorf("failed to extract logs: %w", err)
 	}
