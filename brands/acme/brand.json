@@ -1,0 +1,21 @@
+{
+  "name": "ACME Surveys",
+  "logo": null,
+  "colors": {
+    "primary": "#DC2626",
+    "secondary": "#F59E0B",
+    "background": "#FFFBEB",
+    "surface": "#FEF3C7",
+    "text": "#1C1917"
+  },
+  "metadata": {
+    "title": "ACME Surveys",
+    "description": "Professional surveys by ACME Corp"
+  },
+  "features": {
+    "registration": true,
+    "publicForms": true,
+    "csvExport": true,
+    "responseNotifications": true
+  }
+}

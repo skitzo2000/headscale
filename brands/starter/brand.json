@@ -1,0 +1,21 @@
+{
+  "name": "QuickForms",
+  "logo": null,
+  "colors": {
+    "primary": "#7C3AED",
+    "secondary": "#06B6D4",
+    "background": "#FFFFFF",
+    "surface": "#F5F3FF",
+    "text": "#1E1B4B"
+  },
+  "metadata": {
+    "title": "QuickForms",
+    "description": "Simple forms, quick results"
+  },
+  "features": {
+    "registration": true,
+    "publicForms": true,
+    "csvExport": false,
+    "responseNotifications": false
+  }
+}

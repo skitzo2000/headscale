@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+	--color-brand-primary: #4f46e5;
+	--color-brand-secondary: #10b981;
+	--color-brand-bg: #ffffff;
+	--color-brand-surface: #f9fafb;
+	--color-brand-text: #111827;
+}
+
+body {
+	font-family:
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		"Helvetica Neue",
+		Arial,
+		sans-serif;
+	background-color: var(--color-brand-bg);
+	color: var(--color-brand-text);
+	margin: 0;
+	min-height: 100dvh;
+}
+
+a {
+	color: var(--color-brand-primary);
+}
+
+::selection {
+	background-color: var(--color-brand-primary);
+	color: #ffffff;
+}

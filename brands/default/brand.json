@@ -1,0 +1,15 @@
+{
+  "name": "Forms Platform",
+  "logo": null,
+  "colors": {
+    "primary": "#4F46E5",
+    "secondary": "#10B981",
+    "background": "#FFFFFF",
+    "surface": "#F9FAFB",
+    "text": "#111827"
+  },
+  "metadata": {
+    "title": "Forms Platform",
+    "description": "Create and share beautiful forms"
+  }
+}
